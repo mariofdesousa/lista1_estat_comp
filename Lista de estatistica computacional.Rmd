@@ -1,0 +1,7 @@
+
+
+
+n      <- 1e6
+rn     <- runif(n,0,pi/3)
+sinrn  <- sin(rn)
+estMC  <- ((pi/3)-0)*mean(sinrn)
