@@ -12,11 +12,12 @@ r_pareto = function(n,a,b){
 }
 
 # histrograma de uma amostra da Pareto(2,2)
-hist(r_pareto(100000,2,2),prob=TRUE)
+hist(r_pareto(100000,2,2),prob=TRUE,breaks=100,main="Histograma - Pareto(2,2)",
+     ylab="Densidade",xlab="")
 # Adicionando a densidade verdadeira ao histograma
 vxseq = seq(2,1000,.1)
 vdens = d_pareto(vxseq,2,2)
-lines(vxseq,vdens,type="l",col=2)
+lines(vxseq,vdens,type="l",col=2,lwd=2)
 # Vale destacar que a variância para a Pareto(2,2) é infinita
 
 rm(list=ls())
@@ -39,9 +40,40 @@ r_epach = function(n){
 }
 
 # histograma de uma amostra da Epanechnikov e a densidade verdadeira
-hist(r_epach(100000),prob=TRUE)
-curve(d_epach, xlim=c(-1,1),add=TRUE,col=2)
+hist(r_epach(100000),prob=TRUE,main="Histograma - núcleo de Epanechnikov",
+     ylim=c(0,1),ylab="Densidade",xlab="")
+curve(d_epach, xlim=c(-1,1),add=TRUE,col=2,lwd=2)
+###############################################
+rm(list=ls())
+## Questão 6
+#############################################
+n      <- 20
+rep    <- 100000
+alpha  <- 0.05
 
+#a)chi^2
+ttestchi  <-  replicate(rep,{
+  x = rchisq(n, 1)
+  (mean(x)-1)/(sd(x)/sqrt(n))
+})
+Ind <- ttestchi > qt(1-alpha, n-1)
+mean(Ind)
+
+#b)
+ttestunif  <-  replicate(rep,{
+  x = runif(n,0,2)
+  (mean(x)-1)/(sd(x)/sqrt(n))
+})
+Ind <- ttestunif > qt(1-alpha, n-1)
+mean(Ind)
+
+#c)
+ttestexp  <-  replicate(rep,{
+  x = rexp(n,1)
+  (mean(x)-1)/(sd(x)/sqrt(n))
+})
+Ind <- ttestexp > qt(1-alpha, n-1)
+mean(Ind)
 
 rm(list=ls())
 ## Questão 7
