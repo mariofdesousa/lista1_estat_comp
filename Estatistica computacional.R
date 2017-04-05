@@ -116,4 +116,20 @@ print(vargain)
 ## 0.927129 reducao de 92.71% da variancia
 
 ##############################################
+#Questão 10
 
+# Na primeira resolução iremos supor que sabemos gerar de uma normal truncada e fazer o método de importância
+rm(list=ls())
+install.packages("truncnorm")
+require(truncnorm)
+
+MCNormTruncX2 <- function(n,lower=1,upper=Inf,media=0,dp=1,importancefunction="normaltruncada"){
+n        <- 1e6
+rtn      <- rtruncnorm(n=n,a=lower,b=upper,mean=media,sd=dp)
+int      <- (rtn^2)*dnorm(x=rtn,sd=dp)/dtruncnorm(x=rtn,a=lower,b=upper,mean=media,sd=dp)
+infMC    <- mean(int)
+#averiguar a variancia
+return(infMC)
+}
+
+MCNormTruncX2(n=1e8)
