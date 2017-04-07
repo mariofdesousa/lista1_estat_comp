@@ -7,7 +7,7 @@ output: pdf_document
 
 Questão 3:
 
-Item a:
+No código a seguir, simulamos uma amostra da variável Epanechnikov usando o algoritmo descrito na questão e, em seguida, construimos um histograma das variáveis geradas. 
 ```{r}
 # densidade Epanechnikov
 d_epach = function(x) 3*(1 - x^2)/4
@@ -31,8 +31,9 @@ hist(r_epach(100000),prob=TRUE,main="Histograma - núcleo de Epanechnikov",
 curve(d_epach, xlim=c(-1,1),add=TRUE,col=2,lwd=2)
 ```
 
+Comparando o histograma com a densidade Epanechnikov, vemos que os valores simulados estão bastante próximos da densidade teórica.
 
-Item b: Sabemos que $U_i \sim U(-1,1)$, $i\in\{1,2,3\}$, daí a função de distribuição de $U_i$ é 
+Nessa parte vamos provar que o algoritmo de fato gera valores da densida Epanechnikov. Sabemos que $U_i \sim U(-1,1)$, $i\in\{1,2,3\}$, daí a função de distribuição de $U_i$ é 
 $$
 F_U(u) = \frac{u+1}{2},
 $$
@@ -42,7 +43,7 @@ F_{Y_i}(y) = P(|U_i| \leq y) = P(-y \leq U_i \leq y) = F_{U_i}(y) - F_{U_i}(-y) 
 $$
 ou seja, $Y_i \sim U(0,1)$, $i\in\{1,2,3\}$.
 
-Sendo $X$ a variável aleatória gerada de acordo com o algoritmo descrito, temos que
+Sendo $X$ a variável aleatória gerada de acordo com o algoritmo descrito na questão, temos que
 $$
 X = \left\{\begin{array}{cc}
 U_2 & \textrm{se } |U_3|>max\{|U_1|,|U_2|\}\\
@@ -105,26 +106,26 @@ assim, vemos que $X$ tem distribuição Epanechnikov, e o método de geração e
 
 Questão 10:
 
-A questão pede que estimemos a esperança de $X^2$ de uma distribuição normal padrão definida no intervalo $[1,\inf)$ pelo método da amostragem por importância.
+A questão pede que estimemos a esperança de $X^2$ de uma distribuição normal padrão definida no intervalo $[1,\infty)$ pelo método da amostragem por importância.
 A esperança a ser estimada é descrita a seguir:
 
 $$
-E(X^2) = \int_{1}^{\inf} \frac{{x^2}}{\sqrt{2\pi}}exp \left( \frac{-x^2}{2} \right) 
+E(X^2) = \int_{1}^{\infty} \frac{{x^2}}{\sqrt{2\pi}}exp \left( \frac{-x^2}{2} \right) 
 $$
-Uma distribuição interessante para ser utilizada é a distribuição normal padrão truncada em 1, porque possui o mesmo suporte que a densidade que temos $[0,\inf)$ e, além disso, a razão entre ambas gera uma expressão estável. A estabilidade se dá pela semelhança entre a distribuição normal que a questão oferece e a distribuição normal truncada. 
+Uma distribuição interessante para ser utilizada é a distribuição normal padrão truncada em 1, porque possui o mesmo suporte que a densidade que temos $[0,\infty)$ e, além disso, a razão entre ambas gera uma expressão estável. A estabilidade se dá pela semelhança entre a distribuição normal que a questão oferece e a distribuição normal truncada. 
 
 A razão referida anteriormente pode ser definida, com alguma simplificação de notação, da seguinte maneira: 
 
 $$
 R = \frac{g(x)}{f(x)},
 $$
-onde $g(x)$ denota a distribuição original, no caso a distribuição normal padrão pré multiplicada por $x^2$ e $f(X)$ a função de importância. É importante observar que a variância do estimador depende de R, logo é aconselhável obter razões $R$ mais estáveis.
+onde $g(x)$ denota a distribuição original, no caso a distribuição normal padrão pré multiplicada por $x^2$ e $f(X)$ a função de importância. É importante observar que a variância do estimador depende de $R$, logo é aconselhável obter razões $R$ mais estáveis.
 
 A implementação do algoritmo de importância segue abaixo:
 
 ```{r}
 MCNormTruncX2 <- function(n,lower=1,upper=Inf,media=0,dp=1){
-
+# verificando se o pacote truncnorm precisa ser instalado
 if("truncnorm" %in% rownames(installed.packages())==FALSE)
 {install.packages("truncnorm");library(truncnorm)}
   else library(truncnorm)
@@ -139,7 +140,7 @@ result   <- list(thetahat = impMC1,
                  varhat   = varinf1)
 return(result)
 }
-rbind(MCNormTruncX2(n=100),MCNormTruncX2(n=1e4),MCNormTruncX2(n=1e6))
+cbind(rbind(MCNormTruncX2(n=100),MCNormTruncX2(n=1e4),MCNormTruncX2(n=1e6)),c(100,1e4,1e6))
 ```
 
 Note que os valores de truncagem estão pré definidos, mas nada impede que os valores de $lower$ e $upper$ sejam substituidos. O mesmo ocorre com os valores da média e do desvio-padrão. Note também que os resultados indicam que o estimador é consistente, pois à medida que se eleva $n$, a variância do estimador reduz considerávelmente.
