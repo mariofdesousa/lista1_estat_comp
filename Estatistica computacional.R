@@ -2,14 +2,20 @@ rm(list=ls())
 ## Questão 1
 #############################################
 
-# função densidade Pareto(a,b)
-d_pareto = function(x,a,b) a*((b/x)^a)/x
-# função para gerar variáveis aleatórias com distribuição Pareto(a,b)
-r_pareto = function(n,a,b){
-  vu = runif(n)
-  x = b/(vu^(1/a))
-  return(x)
+
+#Gerar numeros aleatorios da distribuicao de pareto(2,2) e comparar com a densidade verdadeira
+
+d_pareto <- function(x,a,b){(a*(b^a))/x^(a+1)}
+r_pareto <- function(n,a,b){
+  u    <- runif(n)
+  rpar <- b/((1-u)^(1/a))
 }
+
+hist(r_pareto(1000,2,2),prob=TRUE)
+vseq <- seq(2,1000,.1)
+vdens <- d_pareto(vseq,2,2)
+lines(vseq,vdens,col="red")
+
 
 # histrograma de uma amostra da Pareto(2,2)
 hist(r_pareto(100000,2,2),prob=TRUE,breaks=100,main="Histograma - Pareto(2,2)",
@@ -43,6 +49,77 @@ r_epach = function(n){
 hist(r_epach(100000),prob=TRUE,main="Histograma - núcleo de Epanechnikov",
      ylim=c(0,1),ylab="Densidade",xlab="")
 curve(d_epach, xlim=c(-1,1),add=TRUE,col=2,lwd=2)
+###############################################
+rm(list=ls())
+## Questão 4
+n  <- 50
+p2 <- numeric(n)
+rep <- 5000
+G   <- numeric(rep)
+k <- 1
+xdec <- seq(0,1,.1)
+######################################
+while(k < rep){ 
+    x <- rlnorm(n,mean=10,sdlog = 1)
+   p1    <- (1/((n^2)*mean(x)))
+  xs <- sort(x)
+    for(i in 1:n){
+    p2[i] <- ((2*i) - n - 1)*xs[i]    
+    }
+   k <- k+1
+G[k] <- p1*sum(p2)
+}
+
+Gstatln <- rbind(mean(G),median(G))
+quantile(G, probs = seq(0, 1, 0.1), na.rm = FALSE,
+          names = TRUE, type = 7)
+print(Gstatln)
+#######################################
+rm(k)
+k <- 1
+
+while(k < rep){ 
+  x <- runif(n,min=10,max = 20)
+  p1    <- (1/((n^2)*mean(x)))
+  xs <- sort(x)
+  for(i in 1:n){
+    p2[i] <- ((2*i) - n - 1)*xs[i]    
+  }
+  k <- k+1
+  G[k] <- p1*sum(p2)
+}
+Gstatunif <- rbind(mean(G),median(G))
+quantile(G, probs = seq(0, 1, 0.1), na.rm = FALSE,
+         names = TRUE, type = 7)
+print(Gstatunif)
+############################################  
+rm(k)
+k <- 1
+
+while(k < rep){ 
+  x <- rbinom(n,size=1,prob = 0.1)
+  p1    <- (1/((n^2)*mean(x)))
+  xs <- sort(x)
+  for(i in 1:n){
+    p2[i] <- ((2*i) - n - 1)*xs[i]    
+  }
+  G[k] <- p1*sum(p2)
+  
+  if(is.nan(G[k])==FALSE){
+    k <- k+1
+    G[k] <- p1*sum(p2)
+  }
+  
+else{
+   k <- k
+}
+}
+
+Gstatbern <- rbind(mean(G),median(G))
+quantile(G, probs = seq(0, 1, 0.1), na.rm = FALSE,
+         names = TRUE, type = 7)
+print(Gstatbern)
+
 ###############################################
 rm(list=ls())
 ## Questão 6
@@ -120,16 +197,26 @@ print(vargain)
 
 # Na primeira resolução iremos supor que sabemos gerar de uma normal truncada e fazer o método de importância
 rm(list=ls())
-install.packages("truncnorm")
-require(truncnorm)
 
-MCNormTruncX2 <- function(n,lower=1,upper=Inf,media=0,dp=1,importancefunction="normaltruncada"){
-n        <- 1e6
+MCNormTruncX2 <- function(n,lower=1,upper=Inf,media=0,dp=1){
+
+if("truncnorm" %in% rownames(installed.packages())==FALSE){install.packages("truncnorm");library(truncnorm)}  else library(truncnorm)
+  
 rtn      <- rtruncnorm(n=n,a=lower,b=upper,mean=media,sd=dp)
-int      <- (rtn^2)*dnorm(x=rtn,sd=dp)/dtruncnorm(x=rtn,a=lower,b=upper,mean=media,sd=dp)
-infMC    <- mean(int)
-#averiguar a variancia
-return(infMC)
+int1     <- ((rtn^2)*dnorm(x=rtn,mean=media,sd=dp))/dtruncnorm(x=rtn,a=lower,b=upper,mean=media,sd=dp)
+impMC1   <- mean(int1)
+varinf1  <- var(int1)/n
+
+result   <- list(thetahat = impMC1,
+                 varhat   = varinf1,
+                 int      = int1)
+return(result)
 }
 
-MCNormTruncX2(n=1e8)
+rbind(MCNormTruncX2(n=100),MCNormTruncX2(n=1e4),MCNormTruncX2(n=1e6))
+
+
+# Agora vamos utilizar uma distribuicao exponencial truncada
+# Para gerar da exponencial truncada sera utilizado o metodo da inversao
+
+
